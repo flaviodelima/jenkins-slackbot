@@ -1,0 +1,23 @@
+{
+  "name": "jenkins-slackbot",
+  "version": "1.0.0",
+  "description": "A bot that polls Jenkins to give updated information about the pipelines in a single message",
+  "main": "app.js",
+  "scripts": {
+    "ngrok": "ngrok http 3000",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flaviodelima/jenkins-slackbot.git"
+  },
+  "author": "Flavio de Lima",
+  "bugs": {
+    "url": "https://github.com/flaviodelima/jenkins-slackbot/issues"
+  },
+  "homepage": "https://github.com/flaviodelima/jenkins-slackbot#readme",
+  "dependencies": {
+    "@slack/bolt": "^2.3.0",
+    "dotenv": "^10.0.0"
+  }
+}
