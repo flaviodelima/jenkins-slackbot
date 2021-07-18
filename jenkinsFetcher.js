@@ -7,13 +7,13 @@ async function fetchJennkinsData(){
 async function pipelinesData(){
   const pipelines = await fetchJennkinsData();
   
-  const pipelinesData = [];
+  const data = [];
   pipelines.forEach(pipeline =>{
     const {fullDisplayName, fullName, weatherScore, latestRun} = pipeline;
     const {durationInMillis, estimatedDurationInMillis, state, changeSet} = latestRun|| {};
     //const {author.fullName, msg, url} = changeSet[0];
   
-    pipelinesData.push({
+    data.push({
       fullDisplayName,
       fullName,
       weatherScore,
@@ -26,7 +26,7 @@ async function pipelinesData(){
     })
   })
 
-  return pipelinesData;
+  return data;
 }
 
 module.exports = {pipelinesData}
