@@ -15,9 +15,9 @@ const intro = (text) => ({
   }
 });
 
-const divider = {
+const divider = () => ({
   "type": "divider"
-};
+});
 
 const textAndImage = (text, imageUrl, altTextForImage) => ({
   "type": "section",

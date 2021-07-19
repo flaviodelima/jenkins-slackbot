@@ -1,48 +1,64 @@
 require('dotenv').config();
 const { App , LogLevel } = require('@slack/bolt');
-const {divider, header, intro, textAndImage} = require('./messageBlocks')
 
+const {pipelinesData}= require('./jenkinsFetcher')
+const {buildMessage} = require('./messageBuilder')
+const {header} = require('./messageBlocks')
+
+//console.log(pipelinesData());
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   //logLevel: LogLevel.DEBUG
 });
 
-app.message('hi', async ({ say }) => {
-  let message;
-  console.log("received hi")
-  // say() sends a message to the channel where the event was triggered
-  message = await say({
-    blocks: [
-      header("Jenkins Watcher"),
-      intro("Watches changes in Jenkins"),
-      divider,
-      textAndImage("Pipeline1","https://s3-media3.fl.yelpcdn.com/bphoto/c7ed05m9lC2EmA3Aruue7A/o.jpg", "food picture")
-    ]
-  })
+async function sendPipelineMessage(){
+  const data = await pipelinesData();
+  const message = await buildMessage(data);
+  return sendMessageToChannel(message);
+}
 
-  counter = 0;
-
-  async function updateThisMessage() {
-    await rewriteMessage(message.channel, message.ts, [
-      header("Jenkins Watcher"),
-        intro(`Watches changes in Jenkins- count ${counter++}`),
-        divider,
-        textAndImage("Pipeline1","https://s3-media3.fl.yelpcdn.com/bphoto/c7ed05m9lC2EmA3Aruue7A/o.jpg", "food picture")
-    ])
+async function sendMessageToChannel(blocks, channel){
+  if(!channel){
+    channel = process.env.SLACK_BOT_CHANNEL;
   }
-  setInterval(updateThisMessage, 1000)
-});
+  
+  return await app.client.chat.postMessage({
+    token: process.env.SLACK_BOT_TOKEN,
+    channel,
+    blocks,
+  })
+}
 
-async function rewriteMessage(channel, ts, blocks){
-  await app.client.chat.update({
+async function updateMessage(ts, blocks, channel){
+  if(!channel){
+    channel = process.env.SLACK_BOT_CHANNEL;
+  }
+
+  return await app.client.chat.update({
     // The token you used to initialize your app
     token: process.env.SLACK_BOT_TOKEN,
     channel,
     ts,
-    blocks});
-    return
+    blocks
+  });
 }
+
+async function sendAndUpdateMessage(message){
+  let counter = 0;
+  let sentMessage = await sendMessageToChannel([... message, header(`${counter++}`)]);
+
+  async function updateThisMessage() {
+    sentMessage = await updateMessage(sentMessage.ts,
+      [... message, header(`${counter++}`)]
+    )
+  }
+  setInterval(updateThisMessage, 3000);
+  return;
+}
+
+sendPipelineMessage();
+//sendAndUpdateMessage([header('Jenkins')]);
 
 (async () => {
   await app.start(process.env.PORT || 3000);
