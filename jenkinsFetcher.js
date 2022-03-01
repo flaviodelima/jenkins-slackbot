@@ -1,7 +1,16 @@
+const axios = require('axios')
+require('dotenv').config();
+
 async function fetchJennkinsData(){
-  //mock implementation that uses json exported from http://{jenkins_location}/blue/rest/organizations/jenkins/pipelines/
-  const json_response = require('./json_response_from_jenkins.json')
-  return json_response;
+  const JenkinsURL = process.env.JENKINS_URL + '/blue/rest/organizations/jenkins/pipelines/'
+  console.log(JenkinsURL)
+  const jenkinsResponse = await axios.get(JenkinsURL, {
+    auth: {
+      username: process.env.JENKINS_USER,
+      password: process.env.JENKINS_PASSWORD
+    }
+  })
+  return jenkinsResponse.data
 }
 
 async function pipelinesData(){
